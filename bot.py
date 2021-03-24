@@ -105,4 +105,11 @@ async def nasnotcoming(cxt):
     await cxt.send("<:nassmoulder:823289074227085332>")
 
 
+@bot.command()
+async def source(cxt):
+    embed = discord.Embed()
+    embed.description = "[varunkamath/fasir on gh](https://github.com/varunkama$
+    await cxt.send(embed=embed)
+
+
 bot.run(TOKEN)
