@@ -29,9 +29,6 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-# @bot.event
-# async def on_message()
-#
 
 @bot.event
 async def on_message(cxt):
@@ -48,10 +45,12 @@ async def on_message(cxt):
             # await cxt.channel.send(name)
             return
 
+
 @bot.command()
 async def im(cxt):
     string = "$im " + name
     await cxt.send(string)
+
 
 @bot.command()
 async def nas(cxt):
@@ -60,11 +59,13 @@ async def nas(cxt):
     else:
         await cxt.send("Nas is in a relationship??? What a development.")
 
+
 @bot.command()
 async def campus(cxt):
     await cxt.send("<@655167242287317024> Come to campus?")
 
-@bot.command()
+
+@bot.command(aliases=['nastime'])
 async def nascomin(cxt, arg):
     global campustime
     global nastime
@@ -76,19 +77,8 @@ async def nascomin(cxt, arg):
     if campustime > 0:
         await cxt.send("Nas time at " + str(campustime) + " :beer:")
 
-@bot.command()
-async def nastime(cxt, arg):
-    global campustime
-    global nastime
 
-    current_local = time.localtime()
-    campustime = int(arg)
-    nastime = current_local.tm_mday
-
-    if campustime > 0:
-        await cxt.send("Nas time at " + str(campustime) + " :beer:")
-
-@bot.command()
+@bot.command(aliases=['isnascoming'])
 async def isnascomin(cxt):
     global campustime
     global nastime
@@ -106,29 +96,13 @@ async def isnascomin(cxt):
 
     await cxt.send(string)
 
-@bot.command()
-async def isnascoming(cxt):
-    global campustime
-    global nastime
-
-    current_local = time.localtime()
-    print(current_local.tm_mday)
-
-    string = "Nas isn't coming today :("
-
-    if current_local.tm_mday == nastime:
-        if campustime > 0:
-            string = "Nas is comin to campus at " + str(campustime)
-        else:
-            string = "Nas isn't coming today :("
-
-    await cxt.send(string)
 
 @bot.command()
 async def nasnotcoming(cxt):
     global campustime
 
     campustime = 0
-    await cxt.send(":nassmoulder:")
+    await cxt.send("<:nassmoulder:823289074227085332>")
+
 
 bot.run(TOKEN)
