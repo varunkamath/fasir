@@ -19,6 +19,8 @@ dating = 1
 campustime = 0
 nastime = initial_local.tm_mday
 
+MUDAE_ID = 432610292342587392
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -33,14 +35,18 @@ async def on_ready():
 @bot.event
 async def on_message(cxt):
     global name
-
+    global MUDAE_ID
+    reactStr = "React with any emoji to claim!"
+   
     await bot.process_commands(cxt)
-    if cxt.author.id == 432610292342587392:
+    if cxt.author.id == MUDAE_ID:
         if cxt.embeds:
             embed = cxt.embeds[0]
-            if embed.author.name == name:
+            desc = embed.description
+            if embed.author.name == name or reactStr not in desc:
                 return
             print(embed.author.name)
+            print(embed)
             name = embed.author.name
             # await cxt.channel.send(name)
             return
@@ -108,7 +114,7 @@ async def nasnotcoming(cxt):
 @bot.command()
 async def source(cxt):
     embed = discord.Embed()
-    embed.description = "[varunkamath/fasir on gh](https://github.com/varunkama$
+    embed.description = "[varunkamath/fasir on gh](https://github.com/varunkama)$"
     await cxt.send(embed=embed)
 
 
