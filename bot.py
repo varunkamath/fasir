@@ -36,14 +36,13 @@ async def on_ready():
 async def on_message(cxt):
     global name
     global MUDAE_ID
-    reactStr = "React with any emoji to claim!"
    
     await bot.process_commands(cxt)
     if cxt.author.id == MUDAE_ID:
         if cxt.embeds:
             embed = cxt.embeds[0]
             desc = embed.description
-            if embed.author.name == name or reactStr not in desc:
+            if embed.author.name == name:
                 return
             print(embed.author.name)
             print(embed)
