@@ -54,10 +54,14 @@ async def on_message(cxt):
             return
     if stalker:
         if cxt.author.id == 655167242287317024:
-            await cxt.send("^ This man needs help")
+            channel = cxt.channel
+            await channel.send("^ This man needs help")
+        if cxt.author.id == 510544762953138177:
+            channel = cxt.channel
+            await channel.send("Your bot isn't as good as me.")
 
 
-@bot.command(brief='spits out a preformatted $im command for the last rolled character.')
+@bot.command(brief='spits out a preformatted $im command for the last rolled char.')
 async def im(cxt):
     string = "$im " + name
     await cxt.send(string)
@@ -134,6 +138,10 @@ async def say(cxt, arg):
 async def stalk(cxt):
     global stalker
     if cxt.author.id == 433045180363309057:
+        if stalker:
+            await cxt.send(":)")
+        else:
+            await cxt.send(">:)")
         stalker = not stalker
     else:
         await cxt.send("Sorry man, you're not on the list.")
