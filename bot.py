@@ -13,7 +13,9 @@ description = '''I AM FASIR'''
 
 initial_local = time.localtime()
 
-bot = commands.Bot(command_prefix='&', description=description, intents=intents)
+help_command = commands.DefaultHelpCommand(no_category = 'Commands')
+
+bot = commands.Bot(command_prefix='&', description=description, intents=intents, help_command=help_command)
 name = "test"
 dating = 1
 campustime = 0
