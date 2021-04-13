@@ -6,9 +6,20 @@ import discord
 from discord.ext.commands import UserConverter
 from dotenv import load_dotenv
 from discord.ext import commands
+from discord.ext.commands import CommandNotFound
+
+from numpy import loadtxt
+
+from random import seed
+from random import randint
+from random import sample
 
 intents = discord.Intents.default()
 intents.members = True
+
+MUDAE_ID = 432610292342587392
+VARUN_ID = 433045180363309057
+GUILD_ID = 817230167063527455
 
 description = '''I AM FASIR'''
 
@@ -23,9 +34,10 @@ campustime = 0
 nastime = initial_local.tm_mday
 stalker = False
 react = False
+grrr = False
 
-MUDAE_ID = 432610292342587392
-VARUN_ID = 433045180363309057
+quotefile = "quotes.dat"
+seed(1)
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -44,6 +56,8 @@ async def on_message(cxt):
     global name
     global MUDAE_ID
     global react
+    global stalker
+    global grrr
 
     await bot.process_commands(cxt)
     if cxt.author.id == MUDAE_ID:
@@ -54,12 +68,23 @@ async def on_message(cxt):
             print(embed.author.name)
             print(embed)
             name = embed.author.name
-            return
     if cxt.author.id == 822551143166509074:
         emoji = '<:monchou:823224837438439424>'
         await cxt.add_reaction(emoji)
         emoji = '<:monchouupset:826574963166150696>'
         await cxt.add_reaction(emoji)
+
+    if grrr:
+        if cxt.content.startswith('&grrr') or cxt.content.startswith('$wa'):
+            return
+        else:
+            global GUILD_ID
+            guild = bot.get_guild(GUILD_ID)
+            emojis = sample(guild.emojis, 20)
+
+            for emoji in emojis:
+                await cxt.add_reaction(emoji)
+            grrr = False
 
     if react:
         if cxt.content.startswith('&react') or cxt.content.startswith('$wa'):
@@ -91,6 +116,13 @@ async def on_message(cxt):
         channel = discord.utils.get(guild.channels, name="bot-testing")
         message = cxt.author.name + " just sent me this message: " + cxt.content
         await channel.send(message)
+
+
+@bot.event
+async def on_command_error(cxt, error):
+    if isinstance(error, CommandNotFound):
+        return
+    raise error
 
 
 @bot.command(brief='Spits out a preformatted $im command for the last rolled char.')
@@ -198,6 +230,48 @@ async def stalk(cxt):
 async def react(cxt):
     global react
     react = True
+
+
+@bot.command(aliases=['aq'], brief='Add a nas quote.')
+async def addquote(cxt, *, new):
+    global quotefile
+
+    if new.startswith('"') and new.endswith('"'):
+        new = new[1:-1]
+    if new.startswith('\'') and new.endswith('\''):
+        new = new[1:-1]
+
+    entry = ",\'" + new + "\'"
+
+    file = open(quotefile, "a")
+    file.write(entry)
+    file.close()
+
+    await cxt.message.add_reaction('<:nasstoic:823289074227085332>')
+
+
+@bot.command(aliases=['nq', 'q', 'quote'], brief='What would nas say in this situation?')
+async def nasquote(cxt):
+    global quotefile
+
+    quotes = loadtxt(quotefile, comments="#", delimiter=",", unpack=False, dtype=str)
+    num = randint(0, len(quotes) - 1)
+    quote = quotes[num] + " - Nasir Nourkadi"
+
+    await cxt.send(quote)
+
+
+@bot.command(pass_context=True, brief='Make whoever sends the next message feel like Kanye.')
+async def grrr(cxt):
+    global grrr
+    grrr = True
+    await cxt.message.delete()
+    # global GUILD_ID
+    # guild = bot.get_guild(GUILD_ID)
+    # emojis = sample(guild.emojis, 20)
+    #
+    # for emoji in emojis:
+    #     await cxt.message.add_reaction(emoji)
 
 
 bot.run(TOKEN)
