@@ -148,6 +148,8 @@ async def say(cxt, arg):
     if cxt.author.id == VARUN_ID:
         channel = bot.get_channel(821464624607133726)
         await channel.send(arg)
+    else:
+        await cxt.send("I am beholden only to <@433045180363309057>.")
 
 
 @bot.command(brief='......')
