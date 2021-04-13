@@ -177,8 +177,8 @@ async def say(cxt, arg, chan=None):
 async def whisper(cxt, message, person):
     converter = UserConverter()
     user = await converter.convert(cxt, person)
-    await user.send(message)
     await cxt.add_reaction('<:naslook:823289042389041182>')
+    await user.send(message)
 
 
 @bot.command(brief='......')
