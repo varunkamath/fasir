@@ -120,7 +120,7 @@ async def source(cxt):
 
 @bot.command()
 async def say(cxt):
-    if cxt.author.id == VARUN_ID
+    if cxt.author.id == VARUN_ID:
         channel = bot.get_channel(821464624607133726)
         await channel.message.send(cxt.content)
 
