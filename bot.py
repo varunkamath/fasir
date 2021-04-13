@@ -70,6 +70,11 @@ async def on_message(cxt):
             await cxt.add_reaction(emoji)
             channel = cxt.channel
             await channel.send("Your bot isn't as good as me.")
+        if cxt.author.id == 400130051078750218:
+            emoji = '<:brodysad:818335942346670091>'
+            await cxt.add_reaction(emoji)
+            channel = cxt.channel
+            await channel.send("You got a cute dog. Kinda racist, though.")
 
 
 @bot.command(brief='spits out a preformatted $im command for the last rolled char.')
