@@ -131,7 +131,7 @@ async def say(cxt, arg):
 @bot.command(description='......')
 async def stalk(cxt):
     global stalker
-    if cxt.author == 433045180363309057:
+    if cxt.author.id == 433045180363309057:
         stalker = not stalker
     else:
         await cxt.send("Sorry man, you're not on the list.")
