@@ -168,7 +168,7 @@ async def say(cxt, arg, chan=None):
     elif cxt.author.id == VARUN_ID:
         channel = discord.utils.get(cxt.guild.channels, name=chan)
         await channel.send(arg)
-        await cxt.add_reaction('<:naslook:823289042389041182>')
+        await cxt.message.add_reaction('<:naslook:823289042389041182>')
     else:
         await cxt.send("I am beholden only to <@433045180363309057>.")
 
@@ -177,8 +177,8 @@ async def say(cxt, arg, chan=None):
 async def whisper(cxt, message, person):
     converter = UserConverter()
     user = await converter.convert(cxt, person)
-    await cxt.add_reaction('<:naslook:823289042389041182>')
     await user.send(message)
+    await cxt.message.add_reaction('<:naslook:823289042389041182>')
 
 
 @bot.command(brief='......')
