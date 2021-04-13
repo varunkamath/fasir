@@ -53,7 +53,7 @@ async def on_message(cxt):
             return
     if stalker:
         if cxt.author.id == 655167242287317024:
-            await cxt.send("^this man needs help")
+            await cxt.send("^ This man needs help")
 
 
 @bot.command(description='spits out a preformatted $im command for the last rolled character.')
