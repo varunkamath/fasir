@@ -20,6 +20,7 @@ campustime = 0
 nastime = initial_local.tm_mday
 
 MUDAE_ID = 432610292342587392
+VARUN_ID = 433045180363309057
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -115,6 +116,13 @@ async def source(cxt):
     embed = discord.Embed()
     embed.description = "[varunkamath/fasir on gh](https://github.com/varunkama)$"
     await cxt.send(embed=embed)
+
+
+@bot.command()
+async def say(cxt):
+    if cxt.author.id == VARUN_ID
+        channel = bot.get_channel(821464624607133726)
+        await channel.message.send(cxt.content)
 
 
 bot.run(TOKEN)
