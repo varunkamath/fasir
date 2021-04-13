@@ -13,7 +13,7 @@ description = '''I AM FASIR'''
 
 initial_local = time.localtime()
 
-help_command = commands.DefaultHelpCommand(no_category = 'Commands')
+help_command = commands.DefaultHelpCommand(no_category='Commands')
 
 bot = commands.Bot(command_prefix='&', description=description, intents=intents, help_command=help_command)
 name = "test"
@@ -54,11 +54,20 @@ async def on_message(cxt):
             name = embed.author.name
             # await cxt.channel.send(name)
             return
+    if cxt.author.id == 822551143166509074:
+        emoji = '<:monchou:823224837438439424>'
+        await cxt.add_reaction(emoji)
+        emoji = '<:monchouupset:826574963166150696>'
+        await cxt.add_reaction(emoji)
     if stalker:
         if cxt.author.id == 655167242287317024:
+            emoji = '<:naslook:823289042389041182>'
+            await cxt.add_reaction(emoji)
             channel = cxt.channel
             await channel.send("^ This man needs help")
         if cxt.author.id == 510544762953138177:
+            emoji = '<:carsondoubt:821429229303627798>'
+            await cxt.add_reaction(emoji)
             channel = cxt.channel
             await channel.send("Your bot isn't as good as me.")
 
