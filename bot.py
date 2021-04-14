@@ -1,10 +1,9 @@
 # bot.py
-import os
-import time
+import itertools
 
 import discord
 from discord.ext.commands import UserConverter
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 
@@ -17,13 +16,7 @@ from random import sample
 intents = discord.Intents.default()
 intents.members = True
 
-MUDAE_ID = 432610292342587392
-VARUN_ID = 433045180363309057
-GUILD_ID = 817230167063527455
-
 description = '''I AM FASIR'''
-
-initial_local = time.localtime()
 
 help_command = commands.DefaultHelpCommand(no_category='Commands')
 
@@ -31,16 +24,23 @@ bot = commands.Bot(command_prefix='&', description=description, intents=intents,
 name = "test"
 dating = 1
 campustime = 0
-nastime = initial_local.tm_mday
+
 stalker = False
+target = 'nas'
 react = False
 grrr = False
 
 quotefile = "quotes.dat"
 seed(1)
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+config = dotenv_values()
+TOKEN = config['DISCORD_TOKEN']
+GUILD_ID = int(config['GUILD_ID'])
+IDS = dict(itertools.islice(config.items(), 2, None))
+
+
+def get_id(person):
+    return int(IDS[person])
 
 
 @bot.event
@@ -53,14 +53,16 @@ async def on_ready():
 
 @bot.event
 async def on_message(cxt):
+    global GUILD_ID
+
     global name
-    global MUDAE_ID
+
     global react
     global stalker
     global grrr
 
     await bot.process_commands(cxt)
-    if cxt.author.id == MUDAE_ID:
+    if cxt.author.id == get_id('MUDAE'):
         if cxt.embeds:
             embed = cxt.embeds[0]
             if embed.author.name == name:
@@ -68,51 +70,60 @@ async def on_message(cxt):
             print(embed.author.name)
             print(embed)
             name = embed.author.name
-    if cxt.author.id == 822551143166509074:
+    if cxt.author.id == get_id('BOTCHOU'):
         emoji = '<:monchou:823224837438439424>'
         await cxt.add_reaction(emoji)
         emoji = '<:monchouupset:826574963166150696>'
         await cxt.add_reaction(emoji)
 
-    if grrr:
+    if grrr is True:
         if cxt.content.startswith('&grrr') or cxt.content.startswith('$wa'):
             return
         else:
-            global GUILD_ID
+            grrr = False
             guild = bot.get_guild(GUILD_ID)
             emojis = sample(guild.emojis, 20)
 
             for emoji in emojis:
                 await cxt.add_reaction(emoji)
-            grrr = False
 
     if react:
         if cxt.content.startswith('&react') or cxt.content.startswith('$wa'):
             return
         else:
+            react = False
             emoji = '<:naslook:823289042389041182>'
             await cxt.add_reaction(emoji)
-            react = False
 
     if stalker:
-        if cxt.author.id == 655167242287317024:
+
+        if target.lower() == 'nas' and cxt.author.id == get_id('NAS'):
             emoji = '<:naslook:823289042389041182>'
             await cxt.add_reaction(emoji)
             channel = cxt.channel
             await channel.send("^ This man needs help")
-        if cxt.author.id == 510544762953138177:
+        if target.lower() == 'mckeever' and cxt.author.id == get_id('MCKEEVER'):
             emoji = '<:carsondoubt:821429229303627798>'
             await cxt.add_reaction(emoji)
             channel = cxt.channel
             await channel.send("Your bot isn't as good as me.")
-        if cxt.author.id == 400130051078750218:
+        if target.lower() == 'brody' and cxt.author.id == get_id('BRODY'):
             emoji = '<:brodysad:818335942346670091>'
             await cxt.add_reaction(emoji)
             channel = cxt.channel
-            await channel.send("You got a cute dog. Kinda racist, though.")
+        if target.lower() == 'jay' and cxt.author.id == get_id('JAY'):
+            emoji = '<:jasonangry:821109068457705522> '
+            await cxt.add_reaction(emoji)
+            channel = cxt.channel
+            await channel.send("You'll never get Emilia.")
+        if target.lower() == 'geesh' and cxt.author.id == get_id('GEESH'):
+            emoji = '<:Geeshshrouded:826574963901071370>'
+            await cxt.add_reaction(emoji)
+            channel = cxt.channel
+            await channel.send("Get off TikTok.")
 
-    if cxt.guild is None and cxt.author != bot.user and cxt.author.id != 433045180363309057:
-        guild = bot.get_guild(817230167063527455)
+    if cxt.guild is None and cxt.author != bot.user and cxt.author.id != get_id('VARUN'):
+        guild = bot.get_guild(GUILD_ID)
         channel = discord.utils.get(guild.channels, name="bot-testing")
         message = cxt.author.name + " just sent me this message: " + cxt.content
         await channel.send(message)
@@ -147,11 +158,8 @@ async def campus(cxt):
 @bot.command(aliases=['nastime'], brief='Set when nas is coming to campus today')
 async def nascomin(cxt, arg):
     global campustime
-    global nastime
 
-    current_local = time.localtime()
     campustime = int(arg)
-    nastime = current_local.tm_mday
 
     if campustime > 0:
         await cxt.send("Nas time at " + str(campustime) + " :beer:")
@@ -160,18 +168,12 @@ async def nascomin(cxt, arg):
 @bot.command(aliases=['isnascoming'], brief='Is nas coming to campus today?')
 async def isnascomin(cxt):
     global campustime
-    global nastime
-
-    current_local = time.localtime()
-    print(current_local.tm_mday)
-
     string = "Nas isn't coming today :("
 
-    if current_local.tm_mday == nastime:
-        if campustime > 0:
-            string = "Nas is comin to campus at " + str(campustime)
-        else:
-            string = "Nas isn't coming today :("
+    if campustime > 0:
+        string = "Nas is coming to campus at " + str(campustime)
+    else:
+        string = "Nas isn't coming today :("
 
     await cxt.send(string)
 
@@ -193,11 +195,11 @@ async def source(cxt):
 
 @bot.command(aliases=['s'], brief='I am Abomination.')
 async def say(cxt, arg, chan=None):
-    if cxt.author.id == VARUN_ID and chan is None:
+    if cxt.author.id == int(IDS['VARUN_ID']) and chan is None:
         channel = bot.get_channel(821464624607133726)
         await channel.send(arg)
         await cxt.add_reaction('<:naslook:823289042389041182>')
-    elif cxt.author.id == VARUN_ID:
+    elif cxt.author.id == int(IDS['VARUN_ID']):
         channel = discord.utils.get(cxt.guild.channels, name=chan)
         await channel.send(arg)
         await cxt.message.add_reaction('<:naslook:823289042389041182>')
@@ -214,13 +216,16 @@ async def whisper(cxt, message, person):
 
 
 @bot.command(brief='......')
-async def stalk(cxt):
+async def stalk(cxt, person=None):
     global stalker
-    if cxt.author.id == 433045180363309057:
+    global target
+
+    if cxt.author.id == get_id('VARUN'):
         if stalker:
             await cxt.send(":)")
         else:
             await cxt.send(">:)")
+        target = person
         stalker = not stalker
     else:
         await cxt.send("Sorry man, you're not on the list.")
@@ -236,12 +241,12 @@ async def react(cxt):
 async def addquote(cxt, *, new):
     global quotefile
 
-    if new.startswith('"') and new.endswith('"'):
+    if new.startswith('\"') and new.endswith('\"'):
         new = new[1:-1]
     if new.startswith('\'') and new.endswith('\''):
         new = new[1:-1]
 
-    entry = ",\'" + new + "\'"
+    entry = "\n\'" + new + "\'"
 
     file = open(quotefile, "a")
     file.write(entry)
@@ -254,7 +259,7 @@ async def addquote(cxt, *, new):
 async def nasquote(cxt):
     global quotefile
 
-    quotes = loadtxt(quotefile, comments="#", delimiter=",", unpack=False, dtype=str)
+    quotes = loadtxt(quotefile, comments="#", delimiter="\n", unpack=False, dtype=str)
     num = randint(0, len(quotes) - 1)
     quote = quotes[num] + " - Nasir Nourkadi"
 
@@ -272,6 +277,28 @@ async def grrr(cxt):
     #
     # for emoji in emojis:
     #     await cxt.message.add_reaction(emoji)
+
+
+@bot.command(pass_context=True, brief='Clear your last x messages in the channel.')
+async def clear(cxt, n, user=None):
+    msgs = []
+    number = int(n)
+    count = 0
+
+    if user is None:
+        user_id = cxt.author.id
+    else:
+        user_id = get_id(user.upper())
+
+    msgs.append(cxt.message)
+
+    async for message in cxt.channel.history(limit=100):
+        if message.id != cxt.message.id and count < number and message.author.id == user_id:
+            msgs.append(message)
+            count += 1
+    await cxt.channel.delete_messages(msgs)
+
+
 
 
 bot.run(TOKEN)
