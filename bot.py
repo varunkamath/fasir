@@ -1,6 +1,4 @@
 # bot.py
-import itertools
-
 import discord
 from discord.ext.commands import UserConverter
 from dotenv import dotenv_values
@@ -12,6 +10,8 @@ from numpy import loadtxt
 from random import seed
 from random import randint
 from random import sample
+
+import itertools
 
 intents = discord.Intents.default()
 intents.members = True
