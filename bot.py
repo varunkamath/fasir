@@ -39,8 +39,6 @@ TOKEN = config['DISCORD_TOKEN']
 GUILD_ID = int(config['GUILD_ID'])
 IDS = dict(itertools.islice(config.items(), 2, None))
 
-print(IDS)
-
 
 def get_id(person):
     return int(IDS[person])
@@ -133,7 +131,7 @@ async def on_message(cxt):
         await channel.send(message)
 
     if onetruenas:
-        if cxt.author.id == get_id('VARUN') and not cxt.content.startswith('&onetruenas'):
+        if cxt.author.id == get_id('NAS') and not cxt.content.startswith('&onetruenas'):
             text = cxt.content
             await cxt.delete()
             await cxt.channel.send(text)
