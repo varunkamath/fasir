@@ -7,11 +7,11 @@ from discord.ext.commands import CommandNotFound
 
 from numpy import loadtxt
 
+import itertools
+
 from random import seed
 from random import randint
 from random import sample
-
-import itertools
 
 intents = discord.Intents.default()
 intents.members = True
