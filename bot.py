@@ -132,8 +132,8 @@ async def on_message(cxt):
         message = cxt.author.name + " just sent me this message: " + cxt.content
         await channel.send(message)
 
-    if onetruenas is True:
-        if cxt.author.id == get_id('NAS') and not cxt.content.startswith('&onetruenas'):
+    if onetruenas:
+        if cxt.author.id == get_id('VARUN') and not cxt.content.startswith('&onetruenas'):
             text = cxt.content
             await cxt.delete()
             await cxt.channel.send(text)
