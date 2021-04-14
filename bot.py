@@ -29,6 +29,7 @@ stalker = False
 target = 'nas'
 react = False
 grrr = False
+onetruenas = False
 
 quotefile = "quotes.dat"
 seed(1)
@@ -60,6 +61,7 @@ async def on_message(cxt):
     global react
     global stalker
     global grrr
+    global onetruenas
 
     await bot.process_commands(cxt)
     if cxt.author.id == get_id('MUDAE'):
@@ -127,6 +129,12 @@ async def on_message(cxt):
         channel = discord.utils.get(guild.channels, name="bot-testing")
         message = cxt.author.name + " just sent me this message: " + cxt.content
         await channel.send(message)
+
+    if onetruenas is True:
+        if cxt.author.id == get_id('NAS') and not cxt.content.startswith('&onetruenas'):
+            text = cxt.content
+            await cxt.delete()
+            await cxt.channel.send(text)
 
 
 @bot.event
@@ -200,11 +208,11 @@ async def source(cxt):
 
 @bot.command(aliases=['s'], brief='I am Abomination.')
 async def say(cxt, arg, chan=None):
-    if cxt.author.id == int(IDS['VARUN_ID']) and chan is None:
+    if cxt.author.id == get_id('VARUN') or cxt.author.id == get_id('NAS') and chan is None:
         channel = bot.get_channel(821464624607133726)
         await channel.send(arg)
         await cxt.add_reaction('<:naslook:823289042389041182>')
-    elif cxt.author.id == int(IDS['VARUN_ID']):
+    elif cxt.author.id == get_id('VARUN') or cxt.author.id == get_id('NAS'):
         channel = discord.utils.get(cxt.guild.channels, name=chan)
         await channel.send(arg)
         await cxt.message.add_reaction('<:naslook:823289042389041182>')
@@ -285,23 +293,41 @@ async def grrr(cxt):
 
 
 @bot.command(pass_context=True, brief='Clear your last x messages in the channel.')
-async def clear(cxt, n, user=None):
+async def clear(cxt, n, user=None, user2=None):
     msgs = []
+    msg1 = []
+    msg2 = []
     number = int(n)
     count = 0
 
     if user is None:
         user_id = cxt.author.id
+    elif user2 is None:
+        user_id = get_id(user.upper())
     else:
         user_id = get_id(user.upper())
+        user2_id = get_id(user2.upper())
 
     msgs.append(cxt.message)
 
     async for message in cxt.channel.history(limit=100):
-        if message.id != cxt.message.id and count < number and message.author.id == user_id:
-            msgs.append(message)
-            count += 1
+        if message.id != cxt.message.id and len(msg1) < number and message.author.id == user_id:
+            msg1.append(message)
+        if user2 is None:
+            pass
+        else:
+            if message.id != cxt.message.id and len(msg2) < number and message.author.id == user2_id:
+                msg2.append(message)
+    msgs = msgs + msg1 + msg2
     await cxt.channel.delete_messages(msgs)
+
+
+@bot.command(pass_context=True, brief='There can only be one.')
+async def onetruenas(cxt):
+    global onetruenas
+    onetruenas = not onetruenas
+    print(onetruenas)
+    await cxt.send("THERE CAN ONLY BE ONE.")
 
 
 bot.run(TOKEN)
