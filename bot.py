@@ -18,7 +18,7 @@ intents.members = True
 
 description = '''I AM FASIR'''
 
-help_command = commands.DefaultHelpCommand(no_category='Commands')
+help_command = commands.DefaultHelpCommand(no_category='Commands', aliases=['fasir', 'fh', 'fasirhelp'])
 
 bot = commands.Bot(command_prefix='&', description=description, intents=intents, help_command=help_command)
 name = "test"
@@ -134,6 +134,11 @@ async def on_command_error(cxt, error):
     if isinstance(error, CommandNotFound):
         return
     raise error
+
+
+@bot.command(aliases=['fh', 'fasir'], brief='Fasir-specific &help.')
+async def fasirhelp(cxt):
+    await cxt.send_help()
 
 
 @bot.command(brief='Spits out a preformatted $im command for the last rolled char.')
@@ -297,8 +302,6 @@ async def clear(cxt, n, user=None):
             msgs.append(message)
             count += 1
     await cxt.channel.delete_messages(msgs)
-
-
 
 
 bot.run(TOKEN)
