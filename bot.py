@@ -324,10 +324,13 @@ async def clear(cxt, n, user=None, user2=None):
 
 @bot.command(pass_context=True, brief='There can only be one.')
 async def onetruenas(cxt):
-    global onetruenas
-    onetruenas = not onetruenas
-    print(onetruenas)
-    await cxt.send("THERE CAN ONLY BE ONE.")
+    if cxt.author.id == get_id('VARUN'):
+        global onetruenas
+        onetruenas = not onetruenas
+        print(onetruenas)
+        await cxt.send("THERE CAN ONLY BE ONE.")
+    else:
+        await cxt.send("Sorry man, you're not on the list.")
 
 
 bot.run(TOKEN)
