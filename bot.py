@@ -39,6 +39,8 @@ TOKEN = config['DISCORD_TOKEN']
 GUILD_ID = int(config['GUILD_ID'])
 IDS = dict(itertools.islice(config.items(), 2, None))
 
+print(IDS)
+
 
 def get_id(person):
     return int(IDS[person])
