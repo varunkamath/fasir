@@ -1,4 +1,6 @@
 # bot.py
+import random
+
 import discord
 from discord.ext.commands import UserConverter
 from dotenv import dotenv_values
@@ -268,12 +270,38 @@ async def addquote(cxt, *, new):
     await cxt.message.add_reaction('<:nasstoic:823289074227085332>')
 
 
+@bot.command(aliases=['rq', 'r'], brief='Remove last quote.')
+async def removequote(cxt):
+    global quotefile
+
+    msgs = []
+    async for message in cxt.channel.history(limit=100):
+        if message.author.id == get_id('FASIR') and message.content.endswith(" - Nasir Nourkadi"):
+            msgs.append(message.content)
+            break
+
+    message = msgs[0]
+    quote = message.split("' -", 1)
+    quote = quote[0] + "'"
+
+    with open(quotefile, "r+") as f:
+        d = f.readlines()
+        f.seek(0)
+        for i in d:
+            if i.strip("\n") != quote:
+                f.write(i)
+        f.truncate()
+
+    await cxt.message.add_reaction('<:nasstoic:823289074227085332>')
+
+
 @bot.command(aliases=['nq', 'q', 'quote'], brief='What would nas say in this situation?')
 async def nasquote(cxt):
     global quotefile
 
     quotes = loadtxt(quotefile, comments="#", delimiter="\n", unpack=False, dtype=str)
     num = randint(0, len(quotes) - 1)
+    random.shuffle(quotes)
     quote = quotes[num] + " - Nasir Nourkadi"
 
     await cxt.send(quote)
