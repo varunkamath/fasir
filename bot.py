@@ -43,8 +43,13 @@ IDS = dict(itertools.islice(config.items(), 2, None))
 
 
 def get_id(person):
-    print("ID of " + person + ": " + IDS.get(person))
-    return int(IDS.get(person))
+    if person in IDS:
+        print('Key Found')
+        print("ID of " + person + ": " + IDS.get(person))
+        return int(IDS.get(person))
+    else:
+        print('Key not found')
+        return 0
 
 
 @bot.event
