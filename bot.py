@@ -43,6 +43,7 @@ IDS = dict(itertools.islice(config.items(), 2, None))
 
 
 def get_id(person):
+    print(IDS.get(person))
     return int(IDS.get(person))
 
 
