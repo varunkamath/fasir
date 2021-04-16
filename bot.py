@@ -361,7 +361,7 @@ async def onetruenas(cxt):
     elif cxt.author.id == get_id('VARUN'):
         onetruenas = not onetruenas
         print(onetruenas)
-        await cxt.send("There can be two.")
+        await cxt.send("THERE CAN ONLY BE ONE.")
     else:
         await cxt.send("Sorry man, you're not on the list.")
 
