@@ -210,10 +210,11 @@ async def source(cxt):
 
 @bot.command(aliases=['s'], brief='I am Abomination.')
 async def say(cxt, arg, chan=None):
+    print(chan)
     if cxt.author.id == get_id('VARUN') or cxt.author.id == get_id('NAS') and chan is None:
         channel = bot.get_channel(821464624607133726)
         await channel.send(arg)
-        await cxt.add_reaction('<:naslook:823289042389041182>')
+        await cxt.message.add_reaction('<:naslook:823289042389041182>')
     elif cxt.author.id == get_id('VARUN') or cxt.author.id == get_id('NAS'):
         channel = discord.utils.get(cxt.guild.channels, name=chan)
         await channel.send(arg)
