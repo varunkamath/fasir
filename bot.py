@@ -211,7 +211,7 @@ async def source(cxt):
 
 @bot.command(aliases=['s'], brief='I am Abomination.')
 async def say(cxt, arg, chan=None):
-    if cxt.author.id == get_id('VARUN') or cxt.author.id == get_id('NAS') and chan is None:
+    if (cxt.author.id == get_id('VARUN') or cxt.author.id == get_id('NAS')) and chan is None:
         channel = bot.get_channel(821464624607133726)
         print(channel)
         await channel.send(arg)
