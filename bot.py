@@ -43,7 +43,7 @@ IDS = dict(itertools.islice(config.items(), 2, None))
 
 
 def get_id(person):
-    return int(IDS[person])
+    return int(IDS.get(person))
 
 
 @bot.event
