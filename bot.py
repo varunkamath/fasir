@@ -327,32 +327,47 @@ async def grrr(cxt):
 
 
 @bot.command(pass_context=True, brief='Clear your last x messages in the channel.')
-async def clear(cxt, n, user=None, user2=None):
+async def clear(cxt, n=None, user=None, user2=None):
+
+    if n is None:
+        await cxt.send("Use &clear to clear the last few messages in the channel. Usage: \'&clear 5\' will clear your "
+                       "last 5 messages, and \'&clear 5 all\' will clear the last 5 messages by any user.")
+        return
+
     msgs = []
     msg1 = []
     msg2 = []
     number = int(n)
-    count = 0
+    everyone = False
 
     if user is None:
         user_id = cxt.author.id
-    elif user2 is None:
+    elif user2 is None and user.lower() != 'all':
         user_id = get_id(user.upper())
+    elif user.lower() == 'all':
+        everyone = True
     else:
         user_id = get_id(user.upper())
         user2_id = get_id(user2.upper())
 
     msgs.append(cxt.message)
 
-    async for message in cxt.channel.history(limit=100):
-        if message.id != cxt.message.id and len(msg1) < number and message.author.id == user_id:
-            msg1.append(message)
-        if user2 is None:
-            pass
-        else:
-            if message.id != cxt.message.id and len(msg2) < number and message.author.id == user2_id:
-                msg2.append(message)
-    msgs = msgs + msg1 + msg2
+    if everyone is True:
+        async for message in cxt.channel.history(limit=100):
+            if message.id != cxt.message.id and len(msg1) < number:
+                msg1.append(message)
+        msgs = msgs + msg1
+    else:
+        async for message in cxt.channel.history(limit=100):
+            if message.id != cxt.message.id and len(msg1) < number and message.author.id == user_id:
+                msg1.append(message)
+            if user2 is None:
+                pass
+            else:
+                if message.id != cxt.message.id and len(msg2) < number and message.author.id == user2_id:
+                    msg2.append(message)
+        msgs = msgs + msg1 + msg2
+
     await cxt.channel.delete_messages(msgs)
 
 
