@@ -313,6 +313,7 @@ async def nasquote(cxt):
 
     await cxt.send(quote)
 
+
 @bot.command(aliases=['gnq', 'gq', 'gquote'], brief='What would fas say in this situation?')
 async def generatenasquote(cxt):
     global quotefile
@@ -324,10 +325,10 @@ async def generatenasquote(cxt):
     text_model = markovify.NewlineText(text, state_size=1, well_formed=False)
     # Print five randomly-generated sentences
     generated_quote = text_model.make_sentence()
-    stripped_quote = generated_quote [1:-1]
-    quote = stripped_quote + " - Fasir Fourkadi"
+    stripped_quote = generated_quote[1:-1]
+    quote = generated_quote + " - Fasir Fourkadi"
 
-    await cxt.send(generated_quote)
+    await cxt.send(quote)
 
 
 @bot.command(pass_context=True, brief='Make whoever sends the next message feel like Kanye.')
@@ -345,7 +346,6 @@ async def grrr(cxt):
 
 @bot.command(pass_context=True, brief='Clear your last x messages in the channel.')
 async def clear(cxt, n=None, user=None, user2=None):
-
     if n is None:
         await cxt.send("Use &clear to clear the last few messages in the channel. Usage: \'&clear 5\' will clear your "
                        "last 5 messages, and \'&clear 5 all\' will clear the last 5 messages by any user.")
