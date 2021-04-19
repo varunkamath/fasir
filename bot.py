@@ -323,8 +323,9 @@ async def generatenasquote(cxt):
     # Build the model.
     text_model = markovify.NewlineText(text, state_size=1, well_formed=False)
     # Print five randomly-generated sentences
-    generated_quote = text_model.make_sentence())
-    quote = generated_quote + " - Fasir Fourkadi"
+    generated_quote = text_model.make_sentence()
+    stripped_quote = generated_quote [1:-1]
+    quote = stripped_quote + " - Fasir Fourkadi"
 
     await cxt.send(generated_quote)
 
