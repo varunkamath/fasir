@@ -1,5 +1,6 @@
 # bot.py
 import random
+import markovify
 
 import discord
 from discord.ext.commands import UserConverter
@@ -311,6 +312,21 @@ async def nasquote(cxt):
     quote = quotes[num] + " - Nasir Nourkadi"
 
     await cxt.send(quote)
+
+@bot.command(aliases=['gnq', 'gq', 'gquote'], brief='What would fas say in this situation?')
+async def generatenasquote(cxt):
+    global quotefile
+
+    # Get raw text as string.
+    with open(quotefile) as f:
+        text = f.read()
+    # Build the model.
+    text_model = markovify.NewlineText(text, state_size=1, well_formed=False)
+    # Print five randomly-generated sentences
+    generated_quote = text_model.make_sentence())
+    quote = generated_quote + " - Fasir Fourkadi"
+
+    await cxt.send(generated_quote)
 
 
 @bot.command(pass_context=True, brief='Make whoever sends the next message feel like Kanye.')
