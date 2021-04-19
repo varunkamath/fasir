@@ -268,6 +268,9 @@ async def addquote(cxt, *, new):
     if new.startswith('\'') and new.endswith('\''):
         new = new[1:-1]
 
+    if "\n" in new:
+        new.replace("\n", " ")
+
     entry = "\n\'" + new + "\'"
 
     file = open(quotefile, "a")
