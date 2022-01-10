@@ -7,6 +7,7 @@ from discord.ext.commands import UserConverter
 from dotenv import dotenv_values
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
+from discord.utils import get
 
 from numpy import loadtxt
 
@@ -15,6 +16,13 @@ import itertools
 from random import seed
 from random import randint
 from random import sample
+
+import requests
+import json
+from datetime import datetime
+
+import os
+import openai
 
 intents = discord.Intents.default()
 intents.members = True
@@ -25,7 +33,7 @@ help_command = commands.DefaultHelpCommand(no_category='Commands', aliases=['fas
 
 bot = commands.Bot(command_prefix='&', description=description, intents=intents, help_command=help_command)
 name = "test"
-dating = 1
+dating = 0
 campustime = 0
 
 stalker = False
@@ -42,6 +50,9 @@ TOKEN = config['DISCORD_TOKEN']
 GUILD_ID = int(config['GUILD_ID'])
 IDS = dict(itertools.islice(config.items(), 2, None))
 
+RANKS = (167, 233, 295, 355, 415, 475, 535, 595, 653, 713, 773, 835, 915, 995, 1075, 1195, 1315, 1435, 1575, 1714, 1862)
+RANKNAMES = ("Bronze II", "Bronze III", "Silver I", "Silver II", "Silver III", "Gold I", "Gold II", "Gold III", "Plat I", "Plat II", "Plat III", "Diamond I", "Diamond II", "Diamond III", "Champ I", "Champ II", "Champ III", "GC I", "GC II", "GC III", "SL")
+REMOJIS = ("<:bronze:856629178724122666>", "<:silver:856629178190004295>", "<:gold:856629178837368852>", "<:plat:856629899443830864>", "<:diamond:856629178526859314>", "<:champ:856629899451957278>", "<:gc:856629177204604968>", "<:sl:856629177377619988>")
 
 def get_id(person):
     if person in IDS:
@@ -51,6 +62,45 @@ def get_id(person):
     else:
         print('Key not found')
         return 0
+
+
+def getJSON(platform, username):
+    # key = '2cfcd1f6-58bd-466b-9f15-8a41a086cd77'
+    headers = { "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0" }
+    url = ("https://api.tracker.gg/api/v2/rocket-league/standard/profile/"+platform+"/"+username+"?")
+    response = requests.get(url, headers=headers)
+    return json.loads(response.text)
+
+def getSummary(platform, username):
+    jsonResponse = getJSON(platform, username)
+    stuff = {}
+    for x in range(10):
+        try: stuff[jsonResponse['data']['segments'][x]['metadata']['name']] = jsonResponse['data']['segments'][x]['stats']['tier']['metadata']['name']
+        except: None
+    return stuff
+
+
+def getMMRSum(platform, username):
+    jsonResponse = getJSON(platform, username)
+    stuff = {}
+    for x in range(10):
+        try: stuff[jsonResponse['data']['segments'][x]['metadata']['name']] = jsonResponse['data']['segments'][x]['stats']['rating']['value']
+        except: None
+    return stuff
+
+
+def getRank(platform, username, mode):
+    jsonResponse = getSummary(platform, username)
+
+    translation = {'1': 'Ranked Duel 1v1', '2': 'Ranked Doubles 2v2', '3': 'Ranked Standard 3v3', 'hoops': 'Hoops', 'rumble': 'Rumble', 'dropshot': 'Dropshot', 'snowday': 'Snowday', 'tournament': 'Tournament Matches', 'unranked': 'Un-Ranked'}
+    return jsonResponse[translation[mode.lower()]]
+
+
+def getMMR(platform, username, mode):
+    jsonResponse = getMMRSum(platform, username)
+
+    translation = {'1': 'Ranked Duel 1v1', '2': 'Ranked Doubles 2v2', '3': 'Ranked Standard 3v3', 'hoops': 'Hoops', 'rumble': 'Rumble', 'dropshot': 'Dropshot', 'snowday': 'Snowday', 'tournament': 'Tournament Matches', 'unranked': 'Un-Ranked'}
+    return jsonResponse[translation[mode.lower()]]
 
 
 @bot.event
@@ -151,7 +201,6 @@ async def on_command_error(cxt, error):
     if isinstance(error, CommandNotFound):
         return
     raise error
-
 
 @bot.command(aliases=['fh', 'fasir'], brief='Fasir-specific &help.')
 async def fasirhelp(cxt):
@@ -404,6 +453,42 @@ async def onetruenas(cxt):
         await cxt.send("THERE CAN ONLY BE ONE.")
     else:
         await cxt.send("Sorry man, you're not on the list.")
+
+
+@bot.command(pass_context=True)
+async def rank(cxt, plat, uname, mode):
+    rank = getRank(plat, uname, mode)
+    mmr = getMMR(plat, uname, mode)
+    await cxt.send("**" + rank + "**: " + str(mmr))
+
+
+@bot.command(pass_context=True)
+async def nextrank(cxt, plat, uname, mode):
+    global RANKS
+    global RANKNAMES
+    global REMOJIS
+
+    mmr = int(getMMR(plat, uname, mode))
+    next = 0
+    ind = 0
+    for i, rank in enumerate(RANKS):
+        if rank > mmr:
+            next = rank
+            ind = i
+            break
+    
+    await cxt.send("MMR needed for " + REMOJIS[int(ind/3)] + " " + RANKNAMES[ind] + ": **" + str(next - mmr) + "**. Good luck, shitter.")
+
+
+@bot.command(pass_context=True, aliases=['uc'])
+async def updatecount(cxt):
+    now = datetime.now()
+    dt = now.strftime("%d/%m/%Y %H:%M:%S")
+    channel = cxt.channel
+    count = 0
+    async for _ in channel.history(limit=None):
+        count += 1
+    await cxt.channel.edit(topic="https://mudae.fandom.com/wiki/List_of_Commands " + str(count) + " messages sent as of " + dt)
 
 
 bot.run(TOKEN)
