@@ -20,8 +20,10 @@ from random import sample
 import requests
 import json
 from datetime import datetime
+from ast import literal_eval
+import cloudscraper
 
-import os
+import subprocess
 import openai
 
 intents = discord.Intents.default()
@@ -49,6 +51,8 @@ config = dotenv_values()
 TOKEN = config['DISCORD_TOKEN']
 GUILD_ID = int(config['GUILD_ID'])
 IDS = dict(itertools.islice(config.items(), 2, None))
+openai.api_key = config['OPENAI_API_KEY']
+rapidapi_key = config['RAPIDAPI_KEY']
 
 RANKS = (167, 233, 295, 355, 415, 475, 535, 595, 653, 713, 773, 835, 915, 995, 1075, 1195, 1315, 1435, 1575, 1714, 1862)
 RANKNAMES = ("Bronze II", "Bronze III", "Silver I", "Silver II", "Silver III", "Gold I", "Gold II", "Gold III", "Plat I", "Plat II", "Plat III", "Diamond I", "Diamond II", "Diamond III", "Champ I", "Champ II", "Champ III", "GC I", "GC II", "GC III", "SL")
@@ -65,10 +69,26 @@ def get_id(person):
 
 
 def getJSON(platform, username):
-    # key = '2cfcd1f6-58bd-466b-9f15-8a41a086cd77'
+    ## ScrapeNinja
+    # url = "https://scrapeninja.p.rapidapi.com/scrape"
+
+    # payload = "{ \"url\": \"https://api.tracker.gg/api/v2/rocket-league/standard/profile/" + platform + "/" + username+"?\" }"
+    # headers = {
+    #     'content-type': "application/json",
+    #     'x-rapidapi-host': "scrapeninja.p.rapidapi.com",
+    #     'x-rapidapi-key': rapidapi_key
+    #     }
+
+    # ## Cloudscraper
+    # scraper = cloudscraper.create_scraper(disableCloudflareV1=True, delay=10)
+    # response = scraper.get(f"https://api.tracker.gg/api/v2/rocket-league/standard/profile/{platform}/{username}?")
+
     headers = { "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0" }
-    url = ("https://api.tracker.gg/api/v2/rocket-league/standard/profile/"+platform+"/"+username+"?")
+    url = (f"https://api.tracker.gg/api/v2/rocket-league/standard/profile/{platform}/{username}?")
     response = requests.get(url, headers=headers)
+    print(response.text)
+    with open('json_data.json', 'w') as outfile:
+        json.dump(response.text, outfile)
     return json.loads(response.text)
 
 def getSummary(platform, username):
@@ -444,25 +464,25 @@ async def clear(cxt, n=None, user=None, user2=None):
 async def onetruenas(cxt):
     global onetruenas
     if cxt.author.id == get_id('VARUN') and onetruenas:
-        onetruenas = not onetruenas
+        onetruenas = False
         print(onetruenas)
         await cxt.send("There can be two.")
     elif cxt.author.id == get_id('VARUN'):
-        onetruenas = not onetruenas
+        onetruenas = True
         print(onetruenas)
         await cxt.send("THERE CAN ONLY BE ONE.")
     else:
         await cxt.send("Sorry man, you're not on the list.")
 
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, brief='Use Scout instead.')
 async def rank(cxt, plat, uname, mode):
     rank = getRank(plat, uname, mode)
     mmr = getMMR(plat, uname, mode)
     await cxt.send("**" + rank + "**: " + str(mmr))
 
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, brief='MMR necessary for next rank.')
 async def nextrank(cxt, plat, uname, mode):
     global RANKS
     global RANKNAMES
@@ -477,10 +497,16 @@ async def nextrank(cxt, plat, uname, mode):
             ind = i
             break
     
-    await cxt.send("MMR needed for " + REMOJIS[int(ind/3)] + " " + RANKNAMES[ind] + ": **" + str(next - mmr) + "**. Good luck, shitter.")
+    await cxt.send("MMR needed for " + REMOJIS[int(ind/3)] + " " + RANKNAMES[ind] + ": **" + str(next - mmr) + "**")
 
 
-@bot.command(pass_context=True, aliases=['uc'])
+@bot.command(pass_context=True, brief='Stop it.')
+async def emojis(ctx):
+    for emoji in ctx.guild.emojis:
+        print(f"<:{emoji.name}:{emoji.id}>") 
+
+
+@bot.command(pass_context=True, aliases=['uc'], brief='Number of messages in a channel')
 async def updatecount(cxt):
     now = datetime.now()
     dt = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -488,7 +514,64 @@ async def updatecount(cxt):
     count = 0
     async for _ in channel.history(limit=None):
         count += 1
+        if count % 100 == 0:
+            print(count)
     await cxt.channel.edit(topic="https://mudae.fandom.com/wiki/List_of_Commands " + str(count) + " messages sent as of " + dt)
+
+
+@bot.command(pass_context=True, aliases=['c'])
+async def code(cxt, arg):
+    response = openai.Completion.create(
+        engine="code-davinci-001",
+        prompt=arg,
+        temperature=0.8,
+        max_tokens=1578,
+        top_p=1,
+        best_of=2,
+        frequency_penalty=0.7,
+        presence_penalty=0
+    )
+    await cxt.reply(f"```{response['choices'][0]['text']}```")
+    
+
+""" Split a string into 2000 character chunks by splitting on newlines. """
+def split_string(string):
+    lines = string.split('\n')
+    chunks = []
+    chunk = ''
+    for line in lines:
+        if len(line) + len(chunk) < 2000:
+            chunk += line + '\n'
+        else:
+            chunks.append(chunk)
+            chunk = ''
+    return chunks[:5]
+
+
+
+@bot.command(pass_context=True, aliases=['ptp', 'p'])
+@commands.is_owner()
+async def passthepopcorn(cxt, *args):
+    if args[0].lower() == 'd':
+        outputlist = []
+        try:
+            temp = subprocess.Popen(['ptp', 'search', '-d', args[1]], stdout = subprocess.PIPE)
+            output = temp.communicate().decode('utf-8')
+            outputlist.append(output)
+        except: 
+            await cxt.send("Error, go check the console or something.")
+    else:
+        outputlist = []
+        argstr = ' '.join(args)
+        temp = subprocess.Popen(['ptp', 'search', argstr], stdout = subprocess.PIPE)
+        output = temp.communicate()[0].decode('utf-8')
+        outputlist.append(output)
+
+    outputlist = outputlist[:5]
+    output = split_string(outputlist[0])
+    for entry in output:
+        for line in entry.splitlines():
+            await cxt.send(line)
 
 
 bot.run(TOKEN)
